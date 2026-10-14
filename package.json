@@ -1,0 +1,14 @@
+{
+  "name": "war-chess-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @war-chess/web dev",
+    "build": "pnpm --filter @war-chess/core build && pnpm --filter @war-chess/web build",
+    "test": "pnpm --filter @war-chess/core test",
+    "lint": "pnpm -r exec tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}
