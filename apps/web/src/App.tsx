@@ -5,6 +5,7 @@ import { RotateCcw, Target, ShieldAlert, Sparkles } from 'lucide-react';
 import { PromotionModal } from './ui/PromotionModal';
 import { GameOverModal } from './ui/GameOverModal';
 import { CameraToolbar } from './ui/CameraToolbar';
+import { AnimationControls } from './ui/AnimationControls';
 
 export const App: React.FC = () => {
   const turn = useGameStore((s) => s.turn);
@@ -40,7 +41,7 @@ export const App: React.FC = () => {
           </div>
           <div>
             <h1 className="text-sm font-bold tracking-wider text-zinc-100 flex items-center gap-2">
-              WAR CHESS <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">M3</span>
+              WAR CHESS <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">M4</span>
             </h1>
             <p className="text-xs text-zinc-400">Cinematic 3D Chess</p>
           </div>
@@ -78,6 +79,8 @@ export const App: React.FC = () => {
 
         {/* Quick Action Toolbar */}
         <div className="flex items-center gap-2 pointer-events-auto">
+          <AnimationControls />
+
           <button
             onClick={toggleTacticalView}
             title="Tactical Snap Toggle (Space)"

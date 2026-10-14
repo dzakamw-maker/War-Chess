@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import type { BoardPiece } from '@war-chess/core';
 import { PieceGeometry } from './PieceGeometry';
 import { useGameStore } from '../store/gameStore';
+import { animationDirector } from '../director/AnimationDirector';
 
 export function squareToCoords(square: string): [number, number, number] {
   const fileIdx = square.charCodeAt(0) - 'a'.charCodeAt(0);
@@ -55,12 +56,24 @@ export const Piece: React.FC<PieceProps> = ({ piece }) => {
       const [dx, dz] = dragPlaneIntersect.current;
       groupRef.current.position.set(dx, 0.45, dz);
     } else {
-      // Smooth lerp to target square position (~200ms)
-      const targetVec = new THREE.Vector3(...targetCoords);
-      // Exponential smoothing independent of frame rate
-      const alpha = 1 - Math.exp(-18 * delta);
-      currentPos.current.lerp(targetVec, alpha);
-      groupRef.current.position.copy(currentPos.current);
+      // Check if AnimationDirector is driving this piece's square
+      const animTransform = animationDirector.getPieceTransform(piece.square);
+      if (animTransform) {
+        groupRef.current.position.set(...animTransform.position);
+        groupRef.current.rotation.set(...animTransform.rotation);
+        groupRef.current.scale.set(...animTransform.scale);
+        currentPos.current.set(...animTransform.position);
+      } else {
+        // Reset scale and rotation to normal
+        groupRef.current.scale.set(1, 1, 1);
+        groupRef.current.rotation.set(0, piece.type === 'n' ? (piece.color === 'w' ? 0 : Math.PI) : 0, 0);
+
+        // Smooth lerp to resting target square position
+        const targetVec = new THREE.Vector3(...targetCoords);
+        const alpha = 1 - Math.exp(-18 * delta);
+        currentPos.current.lerp(targetVec, alpha);
+        groupRef.current.position.copy(currentPos.current);
+      }
     }
   });
 

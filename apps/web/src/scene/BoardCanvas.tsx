@@ -5,6 +5,8 @@ import { PiecesManager } from './PiecesManager';
 import { CameraRig } from './CameraRig';
 import { WarRoomEnvironment } from './WarRoomEnvironment';
 
+import { CombatEffects } from './CombatEffects';
+
 export const BoardCanvas: React.FC = () => {
   return (
     <div className="w-full h-full relative">
@@ -45,6 +47,9 @@ export const BoardCanvas: React.FC = () => {
         {/* 3D Chess Board & Active Pieces */}
         <Board />
         <PiecesManager />
+
+        {/* Visual Combat Shockwaves & Particle Effects */}
+        <CombatEffects />
 
         {/* Interactive Camera Rig: Continuous WASD, Tactical Snap Toggle, 180° Flip */}
         <CameraRig />

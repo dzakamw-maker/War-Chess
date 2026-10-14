@@ -10,6 +10,7 @@ import {
   type PendingPromotionMove,
   type PieceType,
 } from '@war-chess/core';
+import { animationDirector } from '../director/AnimationDirector';
 
 interface GameState {
   game: ChessGame;
@@ -77,6 +78,11 @@ export const useGameStore = create<GameState>((set, get) => {
 
     selectSquare: (square: string | null) => {
       const { selectedSquare, legalMovesForSelected, executeMove, game } = get();
+
+      // If animation is running, click anywhere immediately skips to final state (CM-06)
+      if (animationDirector.getIsAnimating()) {
+        animationDirector.skipAll();
+      }
 
       if (!square) {
         set({ selectedSquare: null, legalMovesForSelected: [] });
@@ -160,6 +166,9 @@ export const useGameStore = create<GameState>((set, get) => {
         const nextTurn = game.getTurn();
         const kingSquare = event.isCheck ? game.getKingSquare(nextTurn) : null;
 
+        // Enqueue event into AnimationDirector
+        animationDirector.enqueue(event);
+
         set({
           fen: event.fenAfter,
           turn: nextTurn,
@@ -211,6 +220,7 @@ export const useGameStore = create<GameState>((set, get) => {
     },
 
     resetGame: () => {
+      animationDirector.skipAll();
       const newGame = createChessGame();
       set({
         game: newGame,
