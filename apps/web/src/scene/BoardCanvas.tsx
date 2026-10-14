@@ -2,11 +2,13 @@ import React, { useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { CameraControls } from '@react-three/drei';
 import { Board } from './Board';
+import { PiecesManager } from './PiecesManager';
 import { useGameStore } from '../store/gameStore';
 
 const CameraController: React.FC = () => {
   const controlsRef = useRef<CameraControls | null>(null);
   const tacticalSnapTrigger = useGameStore((s) => s.tacticalSnapTrigger);
+  const isDraggingPiece = useGameStore((s) => s.isDraggingPiece);
 
   // Initial Camera Setup: Drone / Bird-view at ~45 degrees
   useEffect(() => {
@@ -40,6 +42,7 @@ const CameraController: React.FC = () => {
   return (
     <CameraControls
       ref={controlsRef}
+      enabled={!isDraggingPiece}
       minDistance={3}
       maxDistance={20}
       maxPolarAngle={Math.PI / 2.15} // Prevents camera going below the board floor
@@ -83,8 +86,9 @@ export const BoardCanvas: React.FC = () => {
           shadow-bias={-0.0005}
         />
 
-        {/* 3D Board and Camera Rig */}
+        {/* 3D Board, Pieces, and Camera Rig */}
         <Board />
+        <PiecesManager />
         <CameraController />
       </Canvas>
     </div>

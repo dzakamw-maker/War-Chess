@@ -12,6 +12,18 @@ export interface CapturedPiece {
   square: string;
 }
 
+export interface BoardPiece {
+  id: string;
+  square: string;
+  type: PieceType;
+  color: Color;
+}
+
+export interface PendingPromotionMove {
+  from: string;
+  to: string;
+}
+
 export type DrawReason = 'stalemate' | 'threefold' | 'insufficient_material' | '50_move';
 
 export interface MoveEvent {

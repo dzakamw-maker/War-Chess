@@ -107,6 +107,22 @@ describe('Chess Engine - LG-01 & LG-03', () => {
     expect(game.getLegalMoves()).toHaveLength(0);
   });
 
+  it('correctly returns 32 board pieces and king squares initially', () => {
+    const game = createChessGame();
+    const pieces = game.getBoardPieces();
+    expect(pieces).toHaveLength(32);
+    expect(game.getKingSquare('w')).toBe('e1');
+    expect(game.getKingSquare('b')).toBe('e8');
+  });
+
+  it('correctly detects pawn promotion candidate move', () => {
+    // White pawn on a7
+    const game = createChessGame('8/P7/8/8/8/8/k7/4K3 w - - 0 1');
+    expect(game.isPromotionMove('a7', 'a8')).toBe(true);
+    // Non-promotion move
+    expect(game.isPromotionMove('e1', 'e2')).toBe(false);
+  });
+
   it('LG-02: does not import or depend on three.js', () => {
     // Verifying pure logic module
     const game = createChessGame();
@@ -114,3 +130,4 @@ describe('Chess Engine - LG-01 & LG-03', () => {
     expect(typeof game.getFen).toBe('function');
   });
 });
+

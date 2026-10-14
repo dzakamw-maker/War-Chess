@@ -13,6 +13,7 @@ interface TileProps {
   isSelected: boolean;
   isLegalTarget: boolean;
   isLastMove: boolean;
+  isKingInCheck: boolean;
   onClick: (square: string) => void;
 }
 
@@ -25,13 +26,16 @@ const Tile: React.FC<TileProps> = ({
   isSelected,
   isLegalTarget,
   isLastMove,
+  isKingInCheck,
   onClick,
 }) => {
   const square = `${file}${rank}`;
 
   // Color selection
   let tileColor = isLight ? '#e2e8f0' : '#334155';
-  if (isSelected) {
+  if (isKingInCheck) {
+    tileColor = '#dc2626'; // Red alert when king is in check
+  } else if (isSelected) {
     tileColor = '#f59e0b'; // Amber / Gold highlight
   } else if (isLastMove) {
     tileColor = isLight ? '#fef08a' : '#854d0e'; // Last move highlight
@@ -70,6 +74,7 @@ export const Board: React.FC = () => {
   const selectedSquare = useGameStore((s) => s.selectedSquare);
   const legalMovesForSelected = useGameStore((s) => s.legalMovesForSelected);
   const lastEvent = useGameStore((s) => s.lastEvent);
+  const kingInCheckSquare = useGameStore((s) => s.kingInCheckSquare);
   const selectSquare = useGameStore((s) => s.selectSquare);
 
   const tiles = useMemo(() => {
@@ -113,6 +118,7 @@ export const Board: React.FC = () => {
         const square = `${tile.file}${tile.rank}`;
         const isSelected = selectedSquare === square;
         const isLegalTarget = legalMovesForSelected.includes(square);
+        const isKingInCheck = kingInCheckSquare === square;
         const isLastMove = lastEvent
           ? lastEvent.from === square || lastEvent.to === square
           : false;
@@ -128,6 +134,7 @@ export const Board: React.FC = () => {
             isSelected={isSelected}
             isLegalTarget={isLegalTarget}
             isLastMove={isLastMove}
+            isKingInCheck={isKingInCheck}
             onClick={selectSquare}
           />
         );

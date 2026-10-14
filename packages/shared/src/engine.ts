@@ -1,5 +1,6 @@
 import { Chess, type Square } from 'chess.js';
 import type {
+  BoardPiece,
   Color,
   DrawReason,
   MoveEvent,
@@ -14,12 +15,15 @@ export interface ChessGame {
   getTurn(): Color;
   isGameOver(): boolean;
   getLegalMoves(square?: string): string[];
+  getBoardPieces(): BoardPiece[];
+  getKingSquare(color: Color): string | null;
+  isPromotionMove(from: string, to: string): boolean;
 }
 
 export function createChessGame(initialFen?: string): ChessGame {
   const chess = new Chess(initialFen);
 
-  return {
+  const game: ChessGame = {
     chess,
     getFen() {
       return chess.fen();
@@ -37,7 +41,52 @@ export function createChessGame(initialFen?: string): ChessGame {
       }
       return chess.moves();
     },
+    getBoardPieces() {
+      const board = chess.board();
+      const pieces: BoardPiece[] = [];
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const cell = board[r][c];
+          if (cell) {
+            pieces.push({
+              id: `${cell.color}_${cell.type}_${cell.square}`,
+              square: cell.square,
+              type: cell.type as PieceType,
+              color: cell.color as Color,
+            });
+          }
+        }
+      }
+      return pieces;
+    },
+    getKingSquare(color: Color) {
+      const board = chess.board();
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const cell = board[r][c];
+          if (cell && cell.type === 'k' && cell.color === color) {
+            return cell.square;
+          }
+        }
+      }
+      return null;
+    },
+    isPromotionMove(from: string, to: string) {
+      const piece = chess.get(from as Square);
+      if (!piece || piece.type !== 'p') return false;
+
+      const targetRank = to[1];
+      const isLegal = game.getLegalMoves(from).includes(to);
+      if (!isLegal) return false;
+
+      if (piece.color === 'w' && targetRank === '8') return true;
+      if (piece.color === 'b' && targetRank === '1') return true;
+
+      return false;
+    },
   };
+
+  return game;
 }
 
 /**

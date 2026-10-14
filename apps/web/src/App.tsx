@@ -2,6 +2,8 @@ import React from 'react';
 import { BoardCanvas } from './scene/BoardCanvas';
 import { useGameStore } from './store/gameStore';
 import { RotateCcw, Target, ShieldAlert, Sparkles } from 'lucide-react';
+import { PromotionModal } from './ui/PromotionModal';
+import { GameOverModal } from './ui/GameOverModal';
 
 export const App: React.FC = () => {
   const turn = useGameStore((s) => s.turn);
@@ -18,6 +20,12 @@ export const App: React.FC = () => {
       {/* 3D Scene Viewport */}
       <BoardCanvas />
 
+      {/* Promotion Modal Overlay */}
+      <PromotionModal />
+
+      {/* Game Over Modal Overlay */}
+      <GameOverModal />
+
       {/* Top Header / HUD */}
       <header className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
         {/* Brand / Game Title */}
@@ -27,7 +35,7 @@ export const App: React.FC = () => {
           </div>
           <div>
             <h1 className="text-sm font-bold tracking-wider text-zinc-100 flex items-center gap-2">
-              WAR CHESS <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono">M0/M1</span>
+              WAR CHESS <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">M2</span>
             </h1>
             <p className="text-xs text-zinc-400">Cinematic 3D Chess</p>
           </div>
