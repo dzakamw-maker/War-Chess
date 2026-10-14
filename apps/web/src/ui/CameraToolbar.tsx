@@ -1,16 +1,31 @@
 import React from 'react';
 import { useGameStore } from '../store/gameStore';
-import { Target, RefreshCw, Compass } from 'lucide-react';
+import { Target, RefreshCw, Compass, Video } from 'lucide-react';
 
 export const CameraToolbar: React.FC = () => {
   const isTacticalView = useGameStore((s) => s.isTacticalView);
   const viewPerspective = useGameStore((s) => s.viewPerspective);
+  const isActionCamEnabled = useGameStore((s) => s.isActionCamEnabled);
   const toggleTacticalView = useGameStore((s) => s.toggleTacticalView);
   const flipPerspective = useGameStore((s) => s.flipPerspective);
   const resetCamera = useGameStore((s) => s.resetCamera);
+  const toggleActionCam = useGameStore((s) => s.toggleActionCam);
 
   return (
     <div className="absolute bottom-16 right-4 sm:bottom-4 sm:right-4 z-40 flex items-center gap-1.5 bg-zinc-900/85 backdrop-blur-md p-1.5 rounded-2xl border border-zinc-800 shadow-2xl pointer-events-auto">
+      {/* Action Cam Toggle Button */}
+      <button
+        onClick={toggleActionCam}
+        title="Toggle Action Cam (Close-up dynamic framing on capture)"
+        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition active:scale-95 ${
+          isActionCamEnabled
+            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-lg shadow-amber-500/10'
+            : 'hover:bg-zinc-800 text-zinc-400 border border-transparent'
+        }`}
+      >
+        <Video className={`w-4 h-4 ${isActionCamEnabled ? 'text-amber-400' : 'text-zinc-500'}`} />
+        <span className="hidden sm:inline">Action Cam</span>
+      </button>
       {/* Tactical Snap Button */}
       <button
         onClick={toggleTacticalView}

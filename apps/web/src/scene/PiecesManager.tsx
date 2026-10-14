@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGameStore } from '../store/gameStore';
 import { Piece } from './Piece';
-import { PieceGeometry } from './PieceGeometry';
+import { CharacterModel } from '../models/CharacterModel';
 import { animationDirector } from '../director/AnimationDirector';
 
 export const PiecesManager: React.FC = () => {
@@ -35,7 +35,7 @@ export const PiecesManager: React.FC = () => {
           rotation={dying.transform.rotation}
           scale={dying.transform.scale}
         >
-          <PieceGeometry type={dying.type} color={dying.color} />
+          <CharacterModel type={dying.type} color={dying.color} animState="kneel" />
         </group>
       ))}
     </group>

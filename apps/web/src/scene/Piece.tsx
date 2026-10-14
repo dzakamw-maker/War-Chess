@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { BoardPiece } from '@war-chess/core';
-import { PieceGeometry } from './PieceGeometry';
+import { CharacterModel, type CharacterAnimState } from '../models/CharacterModel';
 import { useGameStore } from '../store/gameStore';
 import { animationDirector } from '../director/AnimationDirector';
 
@@ -40,9 +40,43 @@ export const Piece: React.FC<PieceProps> = ({ piece }) => {
 
   const isSelected = selectedSquare === piece.square;
   const isTurn = turn === piece.color;
+  const isCheckmate = useGameStore((s) => s.isCheckmate);
+  const isCheck = useGameStore((s) => s.isCheck);
+  const kingInCheckSquare = useGameStore((s) => s.kingInCheckSquare);
 
   const [isDragging, setIsDragging] = useState(false);
   const dragPlaneIntersect = useRef<[number, number]>([0, 0]);
+  const [, setAnimTick] = useState(0);
+
+  useEffect(() => {
+    return animationDirector.subscribe(() => {
+      setAnimTick((t) => t + 1);
+    });
+  }, []);
+
+  // Determine articulated character state
+  let animState: CharacterAnimState = 'idle';
+  if (isCheckmate) {
+    if (piece.type === 'k' && piece.color === turn) {
+      animState = 'kneel';
+    } else if (piece.color !== turn) {
+      animState = 'victory';
+    }
+  } else if (isCheck && piece.type === 'k' && piece.square === kingInCheckSquare) {
+    animState = 'defensive';
+  } else {
+    const activeAnim = animationDirector.getActiveAnimation();
+    if (activeAnim && activeAnim.event.to === piece.square) {
+      if (activeAnim.subPhase === 'LUNGE_HIT') {
+        animState = 'attack';
+      } else {
+        animState = 'walk';
+      }
+    }
+  }
+
+  // Base Y rotation: White pieces face rank 8 (-Z), Black pieces face rank 1 (+Z)
+  const baseRotationY = piece.color === 'w' ? Math.PI : 0;
 
   // Current interpolated 3D position
   const targetCoords = squareToCoords(piece.square);
@@ -60,13 +94,17 @@ export const Piece: React.FC<PieceProps> = ({ piece }) => {
       const animTransform = animationDirector.getPieceTransform(piece.square);
       if (animTransform) {
         groupRef.current.position.set(...animTransform.position);
-        groupRef.current.rotation.set(...animTransform.rotation);
+        groupRef.current.rotation.set(
+          animTransform.rotation[0],
+          baseRotationY + animTransform.rotation[1],
+          animTransform.rotation[2]
+        );
         groupRef.current.scale.set(...animTransform.scale);
         currentPos.current.set(...animTransform.position);
       } else {
         // Reset scale and rotation to normal
         groupRef.current.scale.set(1, 1, 1);
-        groupRef.current.rotation.set(0, piece.type === 'n' ? (piece.color === 'w' ? 0 : Math.PI) : 0, 0);
+        groupRef.current.rotation.set(0, baseRotationY, 0);
 
         // Smooth lerp to resting target square position
         const targetVec = new THREE.Vector3(...targetCoords);
@@ -131,9 +169,10 @@ export const Piece: React.FC<PieceProps> = ({ piece }) => {
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
     >
-      <PieceGeometry
+      <CharacterModel
         type={piece.type}
         color={piece.color}
+        animState={animState}
         isSelected={isSelected}
       />
     </group>

@@ -6,6 +6,7 @@ import { PromotionModal } from './ui/PromotionModal';
 import { GameOverModal } from './ui/GameOverModal';
 import { CameraToolbar } from './ui/CameraToolbar';
 import { AnimationControls } from './ui/AnimationControls';
+import { LoadingScreen } from './ui/LoadingScreen';
 
 export const App: React.FC = () => {
   const turn = useGameStore((s) => s.turn);
@@ -20,6 +21,9 @@ export const App: React.FC = () => {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-[#080a10] font-sans select-none">
+      {/* Initial Loading Screen */}
+      <LoadingScreen />
+
       {/* 3D Scene Viewport */}
       <BoardCanvas />
 
@@ -41,7 +45,7 @@ export const App: React.FC = () => {
           </div>
           <div>
             <h1 className="text-sm font-bold tracking-wider text-zinc-100 flex items-center gap-2">
-              WAR CHESS <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">M4</span>
+              WAR CHESS <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">M5</span>
             </h1>
             <p className="text-xs text-zinc-400">Cinematic 3D Chess</p>
           </div>

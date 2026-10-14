@@ -34,6 +34,8 @@ interface GameState {
   viewPerspective: 'white' | 'black';
   flipPerspectiveTrigger: number;
   resetCameraTrigger: number;
+  isActionCamEnabled: boolean;
+  isVictoryCamActive: boolean;
 
   // Actions
   selectSquare: (square: string | null) => void;
@@ -47,6 +49,8 @@ interface GameState {
   toggleTacticalView: () => void;
   flipPerspective: () => void;
   resetCamera: () => void;
+  toggleActionCam: () => void;
+  setVictoryCamActive: (active: boolean) => void;
   resetGame: () => void;
 }
 
@@ -75,6 +79,8 @@ export const useGameStore = create<GameState>((set, get) => {
     viewPerspective: 'white',
     flipPerspectiveTrigger: 0,
     resetCameraTrigger: 0,
+    isActionCamEnabled: true,
+    isVictoryCamActive: false,
 
     selectSquare: (square: string | null) => {
       const { selectedSquare, legalMovesForSelected, executeMove, game } = get();
@@ -182,6 +188,7 @@ export const useGameStore = create<GameState>((set, get) => {
           isDraw: event.isDraw,
           isGameOver: game.isGameOver(),
           kingInCheckSquare: kingSquare,
+          isVictoryCamActive: event.isCheckmate,
         });
         return true;
       }
@@ -219,6 +226,14 @@ export const useGameStore = create<GameState>((set, get) => {
       }));
     },
 
+    toggleActionCam: () => {
+      set((state) => ({ isActionCamEnabled: !state.isActionCamEnabled }));
+    },
+
+    setVictoryCamActive: (active: boolean) => {
+      set({ isVictoryCamActive: active });
+    },
+
     resetGame: () => {
       animationDirector.skipAll();
       const newGame = createChessGame();
@@ -241,6 +256,7 @@ export const useGameStore = create<GameState>((set, get) => {
         isDraggingPiece: false,
         isTacticalView: false,
         viewPerspective: 'white',
+        isVictoryCamActive: false,
         resetCameraTrigger: get().resetCameraTrigger + 1,
       });
     },

@@ -56,6 +56,33 @@ export class AnimationDirector {
     return this.impactEffects;
   }
 
+  public getActiveAnimation(): ActiveAnimation | null {
+    return this.activeAnimation;
+  }
+
+  public getActiveCaptureInfo(): {
+    victimPos: [number, number, number];
+    attackerPos: [number, number, number];
+    subPhase: CaptureSubPhase;
+    attackerPieceType: PieceType;
+  } | null {
+    if (
+      this.activeAnimation &&
+      (this.activeAnimation.type === 'CAPTURE' || this.activeAnimation.type === 'EN_PASSANT')
+    ) {
+      const victimPos = this.activeAnimation.victimCoords || this.activeAnimation.toCoords;
+      const attackerTransform = this.transforms.get(this.activeAnimation.event.to);
+      const attackerPos = attackerTransform ? attackerTransform.position : this.activeAnimation.fromCoords;
+      return {
+        victimPos,
+        attackerPos,
+        subPhase: this.activeAnimation.subPhase as CaptureSubPhase,
+        attackerPieceType: this.activeAnimation.attackerPieceType,
+      };
+    }
+    return null;
+  }
+
   public subscribe(listener: () => void): () => void {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
@@ -306,6 +333,7 @@ export class AnimationDirector {
               position: [victimPos[0], 0.08, victimPos[2]],
               progress: 0,
               color: anim.event.color === 'w' ? '#f59e0b' : '#38bdf8',
+              attackerPieceType: anim.event.piece,
             });
           }
         } else if (anim.subPhase === 'LUNGE_HIT') {

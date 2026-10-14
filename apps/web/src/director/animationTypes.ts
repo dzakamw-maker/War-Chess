@@ -23,6 +23,7 @@ export interface ImpactEffect {
   position: [number, number, number];
   progress: number; // 0 to 1
   color: string;
+  attackerPieceType?: PieceType;
 }
 
 export interface ActiveAnimation {

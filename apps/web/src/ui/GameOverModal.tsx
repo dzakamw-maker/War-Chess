@@ -4,13 +4,14 @@ import { Trophy, RotateCcw, Swords } from 'lucide-react';
 
 export const GameOverModal: React.FC = () => {
   const isGameOver = useGameStore((s) => s.isGameOver);
+  const isVictoryCamActive = useGameStore((s) => s.isVictoryCamActive);
   const isCheckmate = useGameStore((s) => s.isCheckmate);
   const isDraw = useGameStore((s) => s.isDraw);
   const turn = useGameStore((s) => s.turn);
   const history = useGameStore((s) => s.history);
   const resetGame = useGameStore((s) => s.resetGame);
 
-  if (!isGameOver) return null;
+  if (!isGameOver || isVictoryCamActive) return null;
 
   // The one whose turn it was when checkmated is the loser
   const winner = isCheckmate ? (turn === 'w' ? 'Black' : 'White') : null;
