@@ -4,6 +4,7 @@ import { useGameStore } from './store/gameStore';
 import { RotateCcw, Target, ShieldAlert, Sparkles } from 'lucide-react';
 import { PromotionModal } from './ui/PromotionModal';
 import { GameOverModal } from './ui/GameOverModal';
+import { CameraToolbar } from './ui/CameraToolbar';
 
 export const App: React.FC = () => {
   const turn = useGameStore((s) => s.turn);
@@ -11,12 +12,13 @@ export const App: React.FC = () => {
   const isCheck = useGameStore((s) => s.isCheck);
   const isCheckmate = useGameStore((s) => s.isCheckmate);
   const isDraw = useGameStore((s) => s.isDraw);
+  const isTacticalView = useGameStore((s) => s.isTacticalView);
   const lastEvent = useGameStore((s) => s.lastEvent);
-  const triggerTacticalSnap = useGameStore((s) => s.triggerTacticalSnap);
+  const toggleTacticalView = useGameStore((s) => s.toggleTacticalView);
   const resetGame = useGameStore((s) => s.resetGame);
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-zinc-950 font-sans select-none">
+    <div className="relative w-screen h-screen overflow-hidden bg-[#080a10] font-sans select-none">
       {/* 3D Scene Viewport */}
       <BoardCanvas />
 
@@ -25,6 +27,9 @@ export const App: React.FC = () => {
 
       {/* Game Over Modal Overlay */}
       <GameOverModal />
+
+      {/* Floating Camera Controls Toolbar */}
+      <CameraToolbar />
 
       {/* Top Header / HUD */}
       <header className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
@@ -35,7 +40,7 @@ export const App: React.FC = () => {
           </div>
           <div>
             <h1 className="text-sm font-bold tracking-wider text-zinc-100 flex items-center gap-2">
-              WAR CHESS <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">M2</span>
+              WAR CHESS <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">M3</span>
             </h1>
             <p className="text-xs text-zinc-400">Cinematic 3D Chess</p>
           </div>
@@ -74,12 +79,16 @@ export const App: React.FC = () => {
         {/* Quick Action Toolbar */}
         <div className="flex items-center gap-2 pointer-events-auto">
           <button
-            onClick={triggerTacticalSnap}
-            title="Tactical Snap (Space)"
-            className="flex items-center gap-1.5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-200 text-xs px-3 py-2 rounded-xl border border-zinc-800 transition active:scale-95 shadow-xl"
+            onClick={toggleTacticalView}
+            title="Tactical Snap Toggle (Space)"
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs transition active:scale-95 shadow-xl border ${
+              isTacticalView
+                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-emerald-500/10'
+                : 'bg-zinc-900/80 hover:bg-zinc-800 text-zinc-200 border-zinc-800'
+            }`}
           >
-            <Target className="w-4 h-4 text-emerald-400" />
-            <span className="hidden sm:inline">Tactical Snap</span>
+            <Target className={`w-4 h-4 ${isTacticalView ? 'text-emerald-400 animate-pulse' : 'text-emerald-400'}`} />
+            <span className="hidden sm:inline">{isTacticalView ? 'Top-Down Active' : 'Tactical Snap'}</span>
             <kbd className="hidden sm:inline text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-400 border border-zinc-700">
               Space
             </kbd>
@@ -102,7 +111,7 @@ export const App: React.FC = () => {
         </div>
 
         <div className="bg-zinc-900/75 backdrop-blur-md px-3 py-1.5 rounded-lg border border-zinc-800/80 text-[11px] text-zinc-400 pointer-events-auto shadow-lg flex items-center gap-2">
-          <span>🎮 Drone View: <span className="text-zinc-300">Drag to Orbit</span> • <span className="text-zinc-300">Shift+Drag / Middle-click to Pan</span> • <span className="text-zinc-300">Scroll to Zoom</span></span>
+          <span>🎮 Drone: <span className="text-zinc-300">Drag to Orbit</span> • <span className="text-zinc-300">WASD to Fly</span> • <span className="text-zinc-300">Space (Snap)</span> • <span className="text-zinc-300">F (Flip)</span></span>
           {lastEvent && (
             <span className="border-l border-zinc-700 pl-2 text-amber-300 font-mono font-semibold">
               Last: {lastEvent.san}

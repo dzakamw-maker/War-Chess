@@ -29,6 +29,10 @@ interface GameState {
   pendingPromotion: PendingPromotionMove | null;
   isDraggingPiece: boolean;
   tacticalSnapTrigger: number;
+  isTacticalView: boolean;
+  viewPerspective: 'white' | 'black';
+  flipPerspectiveTrigger: number;
+  resetCameraTrigger: number;
 
   // Actions
   selectSquare: (square: string | null) => void;
@@ -39,6 +43,9 @@ interface GameState {
   executeMove: (from: string, to: string, promotion?: PieceType) => boolean;
   enqueuePreMove: (move: MoveInput) => void;
   triggerTacticalSnap: () => void;
+  toggleTacticalView: () => void;
+  flipPerspective: () => void;
+  resetCamera: () => void;
   resetGame: () => void;
 }
 
@@ -63,6 +70,10 @@ export const useGameStore = create<GameState>((set, get) => {
     pendingPromotion: null,
     isDraggingPiece: false,
     tacticalSnapTrigger: 0,
+    isTacticalView: false,
+    viewPerspective: 'white',
+    flipPerspectiveTrigger: 0,
+    resetCameraTrigger: 0,
 
     selectSquare: (square: string | null) => {
       const { selectedSquare, legalMovesForSelected, executeMove, game } = get();
@@ -174,7 +185,29 @@ export const useGameStore = create<GameState>((set, get) => {
     },
 
     triggerTacticalSnap: () => {
-      set((state) => ({ tacticalSnapTrigger: state.tacticalSnapTrigger + 1 }));
+      get().toggleTacticalView();
+    },
+
+    toggleTacticalView: () => {
+      set((state) => ({
+        isTacticalView: !state.isTacticalView,
+        tacticalSnapTrigger: state.tacticalSnapTrigger + 1,
+      }));
+    },
+
+    flipPerspective: () => {
+      set((state) => ({
+        viewPerspective: state.viewPerspective === 'white' ? 'black' : 'white',
+        flipPerspectiveTrigger: state.flipPerspectiveTrigger + 1,
+      }));
+    },
+
+    resetCamera: () => {
+      set((state) => ({
+        isTacticalView: false,
+        viewPerspective: 'white',
+        resetCameraTrigger: state.resetCameraTrigger + 1,
+      }));
     },
 
     resetGame: () => {
@@ -196,6 +229,9 @@ export const useGameStore = create<GameState>((set, get) => {
         kingInCheckSquare: null,
         pendingPromotion: null,
         isDraggingPiece: false,
+        isTacticalView: false,
+        viewPerspective: 'white',
+        resetCameraTrigger: get().resetCameraTrigger + 1,
       });
     },
   };
